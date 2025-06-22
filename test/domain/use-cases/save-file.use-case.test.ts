@@ -14,7 +14,8 @@ describe("save file test", () => {
     if (outputFolderExist) fs.rmSync("outputs", { recursive: true });
 
     const customOutputFolderExist = fs.existsSync(options.fileDestination);
-    if (customOutputFolderExist) fs.rmSync(options.fileDestination, { recursive: true });
+    if (customOutputFolderExist)
+      fs.rmSync(options.fileDestination, { recursive: true });
   });
 
   test("should save file with the default values", () => {
@@ -42,7 +43,35 @@ describe("save file test", () => {
     const fileContent = fs.readFileSync(customFilePath, { encoding: "utf-8" });
 
     expect(result).toBeTruthy();
-    expect(checkFile).toBeTruthy() ;
+    expect(checkFile).toBeTruthy();
     expect(fileContent).toBe(options.fileContent);
   });
+
+  test("shoud retrun false wehn the file is not saved if directory was not created", () => {
+
+    const saveFile = new SaveFile();
+    const mkdirSpy = jest.spyOn(fs, "mkdirSync").mockImplementation(()=> {throw new Error ('error')});
+  
+    const result = saveFile.execute(options);
+  
+    expect(result).toBe(false);
+    mkdirSpy.mockRestore();
+
+  });
+
+  test("shoud retrun false wehn the file could not be created", () => {
+
+    const saveFile = new SaveFile();
+    const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(()=> {throw new Error ('error from testing')});
+  
+    const result = saveFile.execute({fileContent: 'Hola'});
+  
+    expect(result).toBe(false);
+    writeFileSpy.mockRestore();
+
+  });
+
+ 
+
+
 });
